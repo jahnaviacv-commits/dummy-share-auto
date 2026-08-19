@@ -1,0 +1,116 @@
+{
+  "stops": [
+    {
+      "id": "stop-1",
+      "name": "Lingampally Station",
+      "lat": 17.4837,
+      "lng": 78.3158
+    },
+    {
+      "id": "stop-2",
+      "name": "Gulmohar Park Junction",
+      "lat": 17.4765,
+      "lng": 78.322
+    },
+    {
+      "id": "stop-3",
+      "name": "Nallagandla Bypass",
+      "lat": 17.4682,
+      "lng": 78.3195
+    },
+    {
+      "id": "stop-4",
+      "name": "Citizens Hospital",
+      "lat": 17.4608,
+      "lng": 78.3218
+    },
+    {
+      "id": "stop-5",
+      "name": "Masjid Banda",
+      "lat": 17.458,
+      "lng": 78.337
+    },
+    {
+      "id": "stop-6",
+      "name": "Botanical Garden",
+      "lat": 17.4556,
+      "lng": 78.3582
+    },
+    {
+      "id": "stop-7",
+      "name": "Gachibowli DLF",
+      "lat": 17.4474,
+      "lng": 78.3716
+    }
+  ],
+  "drivers": [
+    {
+      "id": "driver-1",
+      "name": "Raju Prasad",
+      "phone": "9876543210",
+      "autoNumber": "TS-09-TA-1234",
+      "vehicleType": "5-seater",
+      "currentLat": 17.4837,
+      "currentLng": 78.3158,
+      "currentStopId": "stop-1",
+      "status": "active",
+      "isVerified": true
+    },
+    {
+      "id": "driver-2",
+      "name": "Satish Kumar",
+      "phone": "8765432109",
+      "autoNumber": "TS-07-UA-5678",
+      "vehicleType": "9-seater",
+      "currentLat": 17.4682,
+      "currentLng": 78.3195,
+      "currentStopId": "stop-3",
+      "status": "active",
+      "isVerified": true
+    },
+    {
+      "id": "driver-3",
+      "name": "Anitha Reddy",
+      "phone": "7654321098",
+      "autoNumber": "TS-08-VA-9012",
+      "vehicleType": "5-seater",
+      "currentLat": 17.4474,
+      "currentLng": 78.3716,
+      "currentStopId": "stop-7",
+      "status": "active",
+      "isVerified": true
+    }
+  ],
+  "bookings": [
+    {
+      "id": "booking-1787144488749",
+      "driverId": "driver-2",
+      "seatIndex": 8,
+      "passengerName": "Lakshmi Priya",
+      "passengerGender": "Female",
+      "pickupStopId": "stop-4",
+      "dropStopId": "stop-2",
+      "status": "active",
+      "bookedAt": "2026-08-19T13:01:28.749Z"
+    },
+    {
+      "id": "booking-1787144882997",
+      "driverId": "driver-2",
+      "seatIndex": 7,
+      "passengerName": "Lakshmi Priya",
+      "passengerGender": "Female",
+      "pickupStopId": "stop-1",
+      "dropStopId": "stop-2",
+      "status": "cancelled",
+      "bookedAt": "2026-08-19T13:08:02.997Z"
+    }
+  ],
+  "admins": [
+    "admin@sherato.com",
+    "9999999999"
+  ],
+  "config": {
+    "perStopFare": 20,
+    "olaMapsApiKey": ""
+  }
+}
