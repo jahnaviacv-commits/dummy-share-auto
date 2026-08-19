@@ -321,7 +321,7 @@ function broadcastToSubscribers(driverId, data) {
   }
 }
 
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`Share Auto backend running on HTTP/WS port ${PORT}`);
 });
