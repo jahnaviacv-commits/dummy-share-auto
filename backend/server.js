@@ -22,7 +22,7 @@ const readDB = () => {
     return JSON.parse(data);
   } catch (err) {
     console.error("Error reading database:", err);
-    return { stops: [], drivers: [], bookings: [], admins: [], config: { perStopFare: 20, olaMapsApiKey: "" } };
+    return { stops: [], drivers: [], bookings: [], admins: [], users: [], config: { perStopFare: 20, olaMapsApiKey: "" } };
   }
 };
 
@@ -36,9 +36,34 @@ const writeDB = (data) => {
 
 // --- HTTP Endpoints ---
 
-// Get all state
+// Get all state (never send portal passwords to the client)
 app.get("/api/data", (req, res) => {
-  res.json(readDB());
+  const db = readDB();
+  const { users, ...rest } = db;
+  res.json({
+    ...rest,
+    users: (users || []).map(({ password, ...user }) => user)
+  });
+});
+
+// Portal login: passenger | driver | admin
+app.post("/api/login", (req, res) => {
+  const { role, phone, password } = req.body;
+  if (!role || !phone || !password) {
+    return res.status(400).json({ error: "Phone, password, and portal role are required." });
+  }
+
+  const db = readDB();
+  const user = (db.users || []).find(
+    (u) => u.role === role && String(u.phone) === String(phone).trim() && u.password === password
+  );
+
+  if (!user) {
+    return res.status(401).json({ error: "Invalid credentials for this portal." });
+  }
+
+  const { password: _pw, ...safeUser } = user;
+  res.json({ user: safeUser });
 });
 
 // Book a seat
@@ -314,7 +339,7 @@ function broadcastToSubscribers(driverId, data) {
   for (const [ws, info] of clients.entries()) {
     if (ws.readyState === WebSocket.OPEN) {
       // Send to matching passengers, or anyone with Admin role
-      if ((info.role === "passenger" && info.driverId === driverId) || info.role === "admin") {
+      if (info.role !== "driver" || info.driverId === driverId) {
         ws.send(payload);
       }
     }

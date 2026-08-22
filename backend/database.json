@@ -109,6 +109,55 @@
     "admin@sherato.com",
     "9999999999"
   ],
+  "users": [
+    {
+      "id": "passenger-1",
+      "role": "passenger",
+      "name": "Lakshmi Priya",
+      "gender": "Female",
+      "phone": "9000000001",
+      "password": "passenger"
+    },
+    {
+      "id": "passenger-2",
+      "role": "passenger",
+      "name": "Ramesh Kumar",
+      "gender": "Male",
+      "phone": "9000000002",
+      "password": "passenger"
+    },
+    {
+      "id": "passenger-3",
+      "role": "passenger",
+      "name": "Vikram Singh",
+      "gender": "Male",
+      "phone": "9000000003",
+      "password": "passenger"
+    },
+    {
+      "id": "passenger-4",
+      "role": "passenger",
+      "name": "Deepa Reddy",
+      "gender": "Female",
+      "phone": "9000000004",
+      "password": "passenger"
+    },
+    {
+      "id": "driver-user-1",
+      "role": "driver",
+      "name": "Raju Prasad",
+      "phone": "9876543210",
+      "password": "driver",
+      "driverId": "driver-1"
+    },
+    {
+      "id": "admin-1",
+      "role": "admin",
+      "name": "Share Auto Admin",
+      "phone": "9999999999",
+      "password": "admin"
+    }
+  ],
   "config": {
     "perStopFare": 20,
     "olaMapsApiKey": ""

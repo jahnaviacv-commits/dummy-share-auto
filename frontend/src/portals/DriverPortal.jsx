@@ -9,9 +9,11 @@ export default function DriverPortal({
   config = {},
   onDriverRegister = null,
   onDriverLocationUpdate = null, // WebSocket send callback
-  wsConnected = false
+  wsConnected = false,
+  initialDriverId = "",
+  lockDriver = false
 }) {
-  const [selectedDriverId, setSelectedDriverId] = useState("");
+  const [selectedDriverId, setSelectedDriverId] = useState(initialDriverId || "");
   
   // Registration form
   const [regName, setRegName] = useState("");
@@ -27,6 +29,10 @@ export default function DriverPortal({
 
   const activeDriver = drivers.find(d => d.id === selectedDriverId);
   const activeBookings = bookings.filter(b => b.driverId === selectedDriverId && b.status === "active");
+
+  useEffect(() => {
+    if (initialDriverId) setSelectedDriverId(initialDriverId);
+  }, [initialDriverId]);
 
   // Clean up simulator on unmount
   useEffect(() => {
@@ -166,6 +172,7 @@ export default function DriverPortal({
         </div>
 
         {/* Driver Selection Profile */}
+        {!lockDriver && (
         <div>
           <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Select Driver Profile</label>
           <select
@@ -184,6 +191,7 @@ export default function DriverPortal({
             ))}
           </select>
         </div>
+        )}
 
         {/* Selected Driver Control Panel */}
         {activeDriver ? (
@@ -291,6 +299,10 @@ export default function DriverPortal({
                 </div>
               )}
             </div>
+          </div>
+        ) : lockDriver ? (
+          <div className="text-xs bg-slate-50 border border-slate-200 rounded-xl p-4 text-slate-500 font-medium">
+            Driver profile is not linked yet. Ask admin to attach this login to an auto.
           </div>
         ) : (
           /* Register New Driver Form */

@@ -2,19 +2,21 @@ import React, { useState, useEffect, useRef } from "react";
 import UserPortal from "./portals/UserPortal";
 import DriverPortal from "./portals/DriverPortal";
 import AdminPortal from "./portals/AdminPortal";
-import { User, Shield, Users, Radio, Wifi, WifiOff } from "lucide-react";
+import PortalGate from "./portals/PortalGate";
+import { Wifi, WifiOff, LogOut } from "lucide-react";
+import { apiUrl, wsUrl } from "./api";
 
-// Mock profiles for testing bookings/demographics
-const testProfiles = [
-  { name: "Lakshmi Priya", gender: "Female" },
-  { name: "Ramesh Kumar", gender: "Male" },
-  { name: "Vikram Singh", gender: "Male" },
-  { name: "Deepa Reddy", gender: "Female" }
-];
+const SESSION_KEY = "shareauto_portal_session";
 
 export default function App() {
-  const [activePortal, setActivePortal] = useState("user");
-  const [activeUserIndex, setActiveUserIndex] = useState(0);
+  const [session, setSession] = useState(() => {
+    try {
+      const raw = sessionStorage.getItem(SESSION_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  });
 
   // Global Sync States
   const [stops, setStops] = useState([]);
@@ -26,12 +28,21 @@ export default function App() {
   const wsRef = useRef(null);
   const reconnectTimeoutRef = useRef(null);
 
-  const activeUser = testProfiles[activeUserIndex];
+  const activePortal = session?.role || "";
+  const activeUser = session
+    ? { name: session.name, gender: session.gender || "Female" }
+    : { name: "Guest", gender: "Female" };
+
+  const persistSession = (user) => {
+    setSession(user);
+    if (user) sessionStorage.setItem(SESSION_KEY, JSON.stringify(user));
+    else sessionStorage.removeItem(SESSION_KEY);
+  };
 
   // Fetch initial data
   const fetchData = async () => {
     try {
-      const res = await fetch("/api/data");
+      const res = await fetch(apiUrl("/api/data"));
       if (res.ok) {
         const data = await res.json();
         setStops(data.stops || []);
@@ -139,11 +150,12 @@ export default function App() {
       wsRef.current.send(
         JSON.stringify({
           type: "subscribe",
-          role: activePortal === "admin" ? "admin" : "passenger"
+          role: activePortal || "passenger",
+          driverId: session?.driverId || null
         })
       );
     }
-  }, [activePortal, wsConnected]);
+  }, [activePortal, wsConnected, session?.driverId]);
 
   // WebSocket callbacks
   const sendDriverLocationUpdate = (payload) => {
@@ -317,60 +329,32 @@ export default function App() {
             </div>
           </div>
 
-          {/* Controls: Portal Switching & Demo User Selector */}
+          {/* Signed-in portal user */}
           <div className="flex flex-wrap items-center gap-3 justify-between md:justify-end">
-            
-            {/* Passenger Simulation Profiler (Useful for Testing) */}
-            {activePortal === "user" && (
-              <div className="flex items-center gap-1.5 bg-slate-800 border border-slate-700 px-2 py-1 rounded-xl shadow-inner text-xs">
-                <span className="text-slate-400 font-medium">Profile:</span>
-                <select
-                  value={activeUserIndex}
-                  onChange={(e) => setActiveUserIndex(Number(e.target.value))}
-                  className="bg-transparent text-amber-300 font-bold border-none focus:outline-none cursor-pointer"
+            {session ? (
+              <>
+                <div className="flex items-center gap-1.5 bg-slate-800 border border-slate-700 px-2 py-1 rounded-xl shadow-inner text-xs">
+                  <span className="text-slate-400 font-medium">Signed in:</span>
+                  <span className="text-amber-300 font-bold">{session.name}</span>
+                  <span className="bg-amber-400 text-slate-900 text-[10px] font-black px-1.5 py-0.5 rounded-md uppercase">
+                    {session.role}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => persistSession(null)}
+                  className="flex items-center gap-1 bg-slate-800 border border-slate-700 hover:border-rose-400 text-slate-200 hover:text-white text-[11px] font-black px-2.5 py-1 rounded-xl"
                 >
-                  {testProfiles.map((p, idx) => (
-                    <option key={idx} value={idx} className="bg-slate-800 text-white font-bold">
-                      {p.name} ({p.gender[0]})
-                    </option>
-                  ))}
-                </select>
-              </div>
+                  <LogOut size={12} /> Switch portal
+                </button>
+              </>
+            ) : (
+              <nav className="flex bg-slate-800 p-1 rounded-xl border border-slate-700 shadow-inner">
+                <span className="px-3 py-1 rounded-lg text-xs font-black tracking-wide text-slate-400">
+                  Passenger · Driver · Admin
+                </span>
+              </nav>
             )}
-
-            {/* Navigation Tabs */}
-            <nav className="flex bg-slate-800 p-1 rounded-xl border border-slate-700 shadow-inner">
-              <button
-                onClick={() => setActivePortal("user")}
-                className={`px-3 py-1 rounded-lg text-xs font-black tracking-wide transition-all ${
-                  activePortal === "user"
-                    ? "bg-amber-400 text-slate-900 shadow"
-                    : "text-slate-300 hover:text-white"
-                }`}
-              >
-                Passenger
-              </button>
-              <button
-                onClick={() => setActivePortal("driver")}
-                className={`px-3 py-1 rounded-lg text-xs font-black tracking-wide transition-all ${
-                  activePortal === "driver"
-                    ? "bg-amber-400 text-slate-900 shadow"
-                    : "text-slate-300 hover:text-white"
-                }`}
-              >
-                Driver
-              </button>
-              <button
-                onClick={() => setActivePortal("admin")}
-                className={`px-3 py-1 rounded-lg text-xs font-black tracking-wide transition-all ${
-                  activePortal === "admin"
-                    ? "bg-amber-400 text-slate-900 shadow"
-                    : "text-slate-300 hover:text-white"
-                }`}
-              >
-                Admin
-              </button>
-            </nav>
 
             {/* Desktop WS Connectivity Dot */}
             <div className="hidden md:flex items-center gap-1 bg-slate-800/80 px-2.5 py-1 rounded-full text-xs font-bold shadow-inner">
@@ -396,7 +380,9 @@ export default function App() {
 
       {/* Portal Container */}
       <main className="flex-1 overflow-hidden">
-        {activePortal === "user" && (
+        {!session && <PortalGate onLogin={persistSession} />}
+
+        {activePortal === "passenger" && (
           <UserPortal
             stops={stops}
             drivers={drivers}
@@ -418,6 +404,8 @@ export default function App() {
             onDriverRegister={handleDriverRegister}
             onDriverLocationUpdate={sendDriverLocationUpdate}
             wsConnected={wsConnected}
+            initialDriverId={session?.driverId || ""}
+            lockDriver={Boolean(session?.driverId)}
           />
         )}
 
@@ -431,6 +419,7 @@ export default function App() {
             onDriverDelete={handleDriverDelete}
             onConfigUpdate={handleConfigUpdate}
             onStopAction={handleStopAction}
+            skipAuth
           />
         )}
       </main>

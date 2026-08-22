@@ -10,9 +10,10 @@ export default function AdminPortal({
   onDriverVerify = null,
   onDriverDelete = null,
   onConfigUpdate = null,
-  onStopAction = null
+  onStopAction = null,
+  skipAuth = false
 }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(skipAuth);
   const [password, setPassword] = useState("");
   const [passError, setPassError] = useState("");
 
